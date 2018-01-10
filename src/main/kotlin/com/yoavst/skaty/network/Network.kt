@@ -3,6 +3,7 @@ package com.yoavst.skaty.network
 import com.yoavst.skaty.protocols.*
 import com.yoavst.skaty.serialization.ByteArraySimpleReader
 import org.pcap4j.core.PcapHandle
+import org.pcap4j.core.PcapNetworkInterface
 import org.pcap4j.core.PcapNetworkInterface.PromiscuousMode
 import org.pcap4j.core.Pcaps
 import java.io.Closeable
@@ -31,8 +32,15 @@ object Network : Closeable {
         init()
     }
 
+    fun init(interfaceName: String) {
+        init(Pcaps.getDevByName(interfaceName))
+    }
+
     fun init() {
-        val nif = Pcaps.getDevByAddress(address)
+        init(Pcaps.getDevByAddress(address))
+    }
+
+    private fun init(nif: PcapNetworkInterface) {
         sendHandle = nif.openLive(65536, PromiscuousMode.NONPROMISCUOUS, 0)
         Runtime.getRuntime().addShutdownHook(Thread {
             close()
